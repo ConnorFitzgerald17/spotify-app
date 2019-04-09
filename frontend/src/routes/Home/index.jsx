@@ -1,16 +1,18 @@
 import React, { Component } from "react";
+import Header from "../../components/Header";
+import Card from "../../components/Card";
 
 import { get } from "../../utils/api";
 
 const scopes = "user-read-private user-read-email user-top-read";
 
-const url = `https://accounts.spotify.com/authorize?response_type=code&client_id=7fc9a822035c4ab7bf130752b3555de7${
+const url = `https://accounts.spotify.com/authorize?response_type=code&client_id=5b92325236524738a87549303931ebae${
   scopes ? "&scope=" + encodeURIComponent(scopes) : ""
 }&redirect_uri=${encodeURIComponent("http://localhost:7777/spotify/callback")}`;
 
 class Home extends Component {
   state = {
-    data: false,
+    data: false
   };
 
   componentDidMount() {
@@ -29,7 +31,7 @@ class Home extends Component {
 
     if (!accessToken) {
       return (
-        <div>
+        <div className="main">
           <h1>Home</h1>
           <a href={url}>Login to Spotify</a>
         </div>
@@ -48,9 +50,27 @@ class Home extends Component {
 
     return (
       <div>
-        Hi, {userData.userInfo.display_name} from {userData.userInfo.country}.
-        <br />
-        Your top artist is {userData.userTopArtists.items[0].name}
+        <Header data={this.state.data} />
+        <div className="greeting">
+          <h1 className="greeting-text">
+            Hello, <span>{userData.userInfo.display_name}</span>
+          </h1>
+        </div>
+
+        <div className="container">
+          <div className="row">
+            {Object.keys(userData.userTopArtists.items)
+              .slice(0, 5)
+              .map(key => (
+                <Card
+                  key={key}
+                  topArtist={userData.userTopArtists.items[key]}
+                  accessToken={this.props.accessToken}
+                  index={key}
+                />
+              ))}
+          </div>
+        </div>
       </div>
     );
   }

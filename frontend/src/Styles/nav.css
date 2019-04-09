@@ -1,0 +1,20 @@
+.nav {
+  margin: 0;
+  height: 75px;
+  background-color: #102a43;
+  text-align: right;
+}
+
+.avatar-text {
+  margin: 0;
+  padding-right: 15px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}

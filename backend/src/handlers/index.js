@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const URLSearchParams = require("url-search-params");
+const express = require("express");
 
 exports.spotifyCallback = async (req, res) => {
   const { code } = req.query;
@@ -13,7 +14,7 @@ exports.spotifyCallback = async (req, res) => {
     code,
     redirect_uri: "http://localhost:7777/spotify/callback",
     client_id: process.env.SPOTIFY_CLIENT_ID,
-    client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+    client_secret: process.env.SPOTIFY_CLIENT_SECRET
   };
 
   const searchParams = new URLSearchParams();
@@ -27,9 +28,9 @@ exports.spotifyCallback = async (req, res) => {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${Buffer.from(
-        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`,
-      ).toString("base64")}`,
-    },
+        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+      ).toString("base64")}`
+    }
   });
 
   const data = await response.json();
@@ -51,8 +52,8 @@ exports.spotifyUser = async (req, res) => {
     method: "get",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${access_token}`,
-    },
+      Authorization: `Bearer ${access_token}`
+    }
   });
 
   const userInfo = await userInfoResponse.json();
@@ -70,9 +71,9 @@ exports.spotifyUser = async (req, res) => {
       method: "get",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`,
-      },
-    },
+        Authorization: `Bearer ${access_token}`
+      }
+    }
   );
 
   const userTopArtists = await userTopArtistsResponse.json();
@@ -84,5 +85,48 @@ exports.spotifyUser = async (req, res) => {
 
   userData["userTopArtists"] = userTopArtists;
 
+  const userTopTracksResponse = await fetch(
+    "https://api.spotify.com/v1/me/top/tracks",
+    {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`
+      }
+    }
+  );
+
+  const userTopTracks = await userTopTracksResponse.json();
+
+  if (userTopTracks.error) {
+    res.send({ error: userInfo.error.message });
+    return;
+  }
+
+  userData["userTopTracks"] = userTopTracks;
+
   res.send({ userData });
+};
+
+exports.spotifyArtist = async (req, res) => {
+  const access_token = req.query["access_token"];
+  const id = req.query["id"];
+  const artistData = {};
+
+  const artistTopResponse = await fetch(
+    `https://api.spotify.com/v1/artists/${id}/top-tracks?country=CA`,
+    {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`
+      }
+    }
+  );
+
+  const artistTop = await artistTopResponse.json();
+
+  artistData["artistTop"] = artistTop;
+
+  res.send({ artistData });
 };
