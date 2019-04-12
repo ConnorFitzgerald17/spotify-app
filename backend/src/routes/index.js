@@ -2,7 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const { catchErrors } = require("../error-handler");
-const { spotifyCallback, spotifyUser, spotifyArtist } = require("../handlers");
+const {
+  spotifyCallback,
+  spotifyUser,
+  spotifyArtist,
+  spotifyUserTopTracks
+} = require("../handlers");
 
 // Basic route
 router.get("/", (req, res) => {
@@ -19,6 +24,8 @@ router.get("/spotify/callback", catchErrors(spotifyCallback));
 router.get("/spotify/user", catchErrors(spotifyUser));
 
 router.get("/spotify/artist", catchErrors(spotifyArtist));
+
+router.get("/spotify/user/top", catchErrors(spotifyUserTopTracks));
 
 // Export router
 module.exports = router;

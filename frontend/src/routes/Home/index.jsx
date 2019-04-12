@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import Header from "../../components/Header";
 import Card from "../../components/Card";
+import List from "../../components/List";
+import ListItem from "../../components/ListItem";
+import Avatar from "../../components/Avatar";
+import Link from "../../components/Link";
+import PlayButton from "../../components/PlayButton";
+import Button from "../../components/Button";
 
 import { get } from "../../utils/api";
 
@@ -12,7 +18,8 @@ const url = `https://accounts.spotify.com/authorize?response_type=code&client_id
 
 class Home extends Component {
   state = {
-    data: false
+    data: false,
+    trackData: false
   };
 
   componentDidMount() {
@@ -22,25 +29,34 @@ class Home extends Component {
       get(`/spotify/user?access_token=${accessToken}`).then(res => {
         this.setState({ data: res.data });
       });
+
+      get(`/spotify/user/top?access_token=${accessToken}`).then(res => {
+        this.setState({ trackData: res.data });
+      });
     }
   }
 
   render() {
     const { accessToken } = this.props;
     const { data } = this.state;
+    const { trackData } = this.state;
 
     if (!accessToken) {
       return (
-        <div className="main">
-          <h1>Home</h1>
-          <a href={url}>Login to Spotify</a>
+        <div className="conainter login">
+          <h3 className="header">Welcome To My Spotify App</h3>
+          <Link linkClass="login-button" href={url}>
+            Login to Spotify
+          </Link>
         </div>
       );
     }
 
-    if (!data) {
-      return <div>Loading...</div>;
+    if (!data || !trackData) {
+      return <div>Loading...yes2</div>;
     }
+
+    const { userTopTrack } = trackData;
 
     const { error, userData } = data;
 
@@ -57,18 +73,53 @@ class Home extends Component {
           </h1>
         </div>
 
-        <div className="container">
-          <div className="row">
+        <div className="col-12">
+          <h3 className="header top-tracks-header">
+            {userData.userInfo.display_name}'s Top 5 Artists
+          </h3>
+          <div className="row justify-content-center">
             {Object.keys(userData.userTopArtists.items)
               .slice(0, 5)
               .map(key => (
                 <Card
+                  cardClass="col-lg-2"
                   key={key}
                   topArtist={userData.userTopArtists.items[key]}
                   accessToken={this.props.accessToken}
                   index={key}
                 />
               ))}
+          </div>
+        </div>
+        <div className="top-tracks-div">
+          <div className="container">
+            <div className="justify-content-center">
+              <h3 className="header top-tracks-header">
+                {userData.userInfo.display_name}'s Top 5 Tracks
+              </h3>
+              <List listClass="collection">
+                {Object.keys(userTopTrack).map(num => (
+                  <ListItem key={num} listItemClass="collection-list-item">
+                    <Avatar
+                      imgClass="collection-img"
+                      img={userTopTrack[num].albumImg}
+                      alt={userTopTrack[num].album}
+                    />
+                    <span className="collection-title">
+                      {userTopTrack[num].track}{" "}
+                      <Link href={userTopTrack[num].albumUrl} newTab={true}>
+                        <PlayButton />
+                      </Link>
+                    </span>
+                    <p>
+                      {userTopTrack[num].artist}
+                      {" - "}
+                      <span className="header">{userTopTrack[num].album}</span>
+                    </p>
+                  </ListItem>
+                ))}
+              </List>
+            </div>
           </div>
         </div>
       </div>

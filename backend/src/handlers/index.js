@@ -65,6 +65,8 @@ exports.spotifyUser = async (req, res) => {
 
   userData["userInfo"] = userInfo;
 
+  console.log(userData["userInfo"]);
+
   const userTopArtistsResponse = await fetch(
     "https://api.spotify.com/v1/me/top/artists",
     {
@@ -85,6 +87,42 @@ exports.spotifyUser = async (req, res) => {
 
   userData["userTopArtists"] = userTopArtists;
 
+  res.send({ userData });
+};
+
+exports.spotifyArtist = async (req, res) => {
+  const access_token = req.query["access_token"];
+  const id = req.query["id"];
+  const artistData = [];
+
+  const artistTopResponse = await fetch(
+    `https://api.spotify.com/v1/artists/${id}/top-tracks?country=CA`,
+    {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`
+      }
+    }
+  );
+
+  const artistTop = await artistTopResponse.json();
+
+  for (let i = 0; i < 5; i++) {
+    artistData[i] = {
+      track: artistTop.tracks[i].name,
+      url: artistTop.tracks[i].external_urls.spotify
+    };
+  }
+
+  res.send({ artistData });
+};
+
+exports.spotifyUserTopTracks = async (req, res) => {
+  const access_token = req.query["access_token"];
+
+  userTopTrack = {};
+
   const userTopTracksResponse = await fetch(
     "https://api.spotify.com/v1/me/top/tracks",
     {
@@ -103,30 +141,15 @@ exports.spotifyUser = async (req, res) => {
     return;
   }
 
-  userData["userTopTracks"] = userTopTracks;
+  for (let i = 0; i < 5; i++) {
+    userTopTrack[i] = {
+      track: userTopTracks.items[i].name,
+      artist: userTopTracks.items[i].artists[0].name,
+      albumUrl: userTopTracks.items[i].album.external_urls.spotify,
+      album: userTopTracks.items[i].album.name,
+      albumImg: userTopTracks.items[i].album.images[0].url
+    };
+  }
 
-  res.send({ userData });
-};
-
-exports.spotifyArtist = async (req, res) => {
-  const access_token = req.query["access_token"];
-  const id = req.query["id"];
-  const artistData = {};
-
-  const artistTopResponse = await fetch(
-    `https://api.spotify.com/v1/artists/${id}/top-tracks?country=CA`,
-    {
-      method: "get",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`
-      }
-    }
-  );
-
-  const artistTop = await artistTopResponse.json();
-
-  artistData["artistTop"] = artistTop;
-
-  res.send({ artistData });
+  res.send({ userTopTrack });
 };

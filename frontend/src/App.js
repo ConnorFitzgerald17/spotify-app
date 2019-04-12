@@ -4,15 +4,15 @@ import { Switch, Route } from "react-router-dom";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import User from "./routes/User";
-import Artist from "./routes/Artist";
 import Footer from "./components/Footer";
 
 import "./Styles/bootstrap-grid.min.css";
-import "./Styles/main.css";
-import "./Styles/card.css";
+import "./Styles/main.scss";
+import "./Styles/card.scss";
+import "./Styles/collection.scss";
 import "./normalize.css";
 // import "./App.css";
-import "./Styles/nav.css";
+import "./Styles/nav.scss";
 
 class App extends Component {
   state = {
@@ -47,7 +47,6 @@ class App extends Component {
               <User {...props} setAccessToken={this.setAccessToken} />
             )}
           />
-          <Route exact path="/spotify/artist/:id" render={<Artist />} />
           <Route render={() => <div>404</div>} />
         </Switch>
         <Footer />

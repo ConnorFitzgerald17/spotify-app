@@ -1,4 +1,8 @@
 import React, { Component } from "react";
+import Avatar from "./Avatar";
+import Link from "./Link";
+import PlayButton from "./PlayButton";
+
 import { get } from "../utils/api";
 
 class Card extends Component {
@@ -18,26 +22,35 @@ class Card extends Component {
   }
 
   render() {
-    const { topArtist } = this.props;
+    const { topArtist, cardClass } = this.props;
+    const { data } = this.state;
 
-    if (this.state) {
+    if (data) {
       return (
-        <div className="card col-md-2">
+        <div className={cardClass + " card"}>
           <div className="card-image">
-            <img src={topArtist.images[0].url} alt="" />
+            <Avatar img={topArtist.images[0].url} alt={topArtist.name} />
             <span className="card-title">{topArtist.name}</span>
           </div>
           <div className="card-content">
-            {/* {Object.keys(artistData.artistData.artistTop.tracks)
-              .slice(0, 5)
-              .map(key => (
-                <p>{artistData.artistData.artistTop.tracks[0].name}</p>
-              ))} */}
+            {Object.keys(data.artistData).map(i => (
+              <Link
+                key={topArtist.name + i}
+                href={data.artistData[i].url}
+                newTab={true}
+                linkClass="top-link"
+              >
+                <p>
+                  <PlayButton />
+                  {data.artistData[i].track}
+                </p>
+              </Link>
+            ))}
           </div>
           <div className="card-action">
-            <a href={topArtist.external_urls.spotify} target="_blank">
+            <Link href={topArtist.external_urls.spotify} newTab={true}>
               Listen
-            </a>
+            </Link>
           </div>
         </div>
       );
